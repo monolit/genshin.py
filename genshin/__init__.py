@@ -6,7 +6,7 @@ API Reference: https://thesadru.github.io/genshin.py/pdoc/genshin
 
 Source Code: https://github.com/thesadru/genshin.py
 """
-from . import models, utility
+from . import models, utility, errors
 from .client import *
 from .constants import *
 from .errors import *

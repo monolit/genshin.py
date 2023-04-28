@@ -8,6 +8,8 @@ __all__ = [
     "recognize_game",
     "recognize_genshin_server",
     "recognize_honkai_server",
+    "recognize_starrail_server",
+    "recognize_server",
     "recognize_region",
 ]
 
@@ -20,6 +22,9 @@ UID_RANGE: typing.Mapping[types.Game, typing.Mapping[types.Region, typing.Sequen
         types.Region.OVERSEAS: (1, 2),
         types.Region.CHINESE: (3, 4),
     },
+    types.Game.STARRAIL: {
+        types.Region.OVERSEAS: (7, 7),
+    }
 }
 """Mapping of games and regions to their respective UID ranges."""
 
@@ -63,12 +68,24 @@ def recognize_honkai_server(uid: int) -> str:
     raise ValueError(f"UID {uid} isn't associated with any server")
 
 
+def recognize_starrail_server(uid: int) -> str:
+    """Recognize which server a Genshin UID is from."""
+    server = {
+        "7": "prod_official_eur",
+    }.get(str(uid)[0])
+    if server:
+        return server
+    raise ValueError(f"UID {uid} isn't associated with any server")
+
+
 def recognize_server(uid: int, game: types.Game) -> str:
     """Recognizes which server a UID is from."""
     if game == types.Game.HONKAI:
         return recognize_honkai_server(uid)
     elif game == types.Game.GENSHIN:
         return recognize_genshin_server(uid)
+    elif game == types.Game.STARRAIL:
+        return recognize_starrail_server(uid)
     else:
         raise ValueError(f"{game} is not a valid game")
 

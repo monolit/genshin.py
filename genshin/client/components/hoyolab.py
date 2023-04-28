@@ -2,7 +2,7 @@
 import asyncio
 import typing
 
-from genshin import types, utility
+from genshin import types, utility, errors
 from genshin.client import cache as client_cache
 from genshin.client import routes
 from genshin.client.components import base
@@ -110,21 +110,22 @@ class HoyolabClient(base.BaseClient):
     @managers.requires_cookie_token
     async def redeem_code(
         self,
-        code: str,
+        code: str = "",
         uid: typing.Optional[int] = None,
         *,
         lang: typing.Optional[str] = None,
     ) -> None:
+        if not code:
+            raise errors.RedemptionInvalid
         """Redeems a gift code for the current genshin user."""
-        uid = uid or await self._get_uid(types.Game.GENSHIN)
-
+        uid = uid or await self._get_uid(self.default_game)
         await self.request(
-            routes.CODE_URL.get_url(),
+            routes.REDEEM_CODE_URL.get_url(self.region, self.default_game),
             params=dict(
                 uid=uid,
-                region=utility.recognize_genshin_server(uid),
+                region=utility.recognize_server(uid, self.default_game),
                 cdkey=code,
-                game_biz="hk4e_global",
+                game_biz=routes.GAME_BIZ[self.region][self.default_game],
                 lang=utility.create_short_lang_code(lang or self.lang),
             ),
         )
